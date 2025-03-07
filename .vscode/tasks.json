@@ -7,6 +7,21 @@
             "label": "echo",
             "type": "shell",
             "command": "make all"
+        },
+        {
+          "command": "make clean;make",
+          "dependsOn": [
+            "build_libdaisy",
+            "build_daisysp"
+          ],
+          "label": "build_all",
+          "options": {
+            "cwd": "${workspaceFolder}/seed/Drum_Machine"
+          },
+          "problemMatcher": [
+            "$gcc"
+          ],
+          "type": "shell"
         }
     ]
 }

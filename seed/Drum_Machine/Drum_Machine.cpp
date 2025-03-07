@@ -1,15 +1,11 @@
-#include "daisy_seed.h"
-#include "daisysp.h"
+#include "../CrLib/crlib.h"
 
 // Use the daisy namespace to prevent having to type
 // daisy:: before all libdaisy functions
-using namespace daisy;
-using namespace daisysp;
+using namespace crlib;
 
 // Declare a DaisySeed object called hardware
 DaisySeed hardware;
-
-Metro tick;
 
 Oscillator clickOsc;
 Oscillator bloopOsc;
@@ -158,8 +154,6 @@ int main(void)
     hardware.Init();
     hardware.SetAudioBlockSize(4);
     float samplerate = hardware.AudioSampleRate();
-
-    tick.Init(1.0f, samplerate);
     
     //Initialize the adc
     adcConfig.InitSingle(hardware.GetPin(15));
