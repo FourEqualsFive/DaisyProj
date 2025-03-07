@@ -5,9 +5,9 @@ TARGET = Drum_Machine
 CPP_SOURCES = Drum_Machine.cpp
 
 # Library Locations
-LIBDAISY_DIR = ../../libDaisy/
-DAISYSP_DIR = ../../DaisySP/
-CRLIB_DIR = ../CrLib/
+LIBDAISY_DIR = /libDaisy/
+DAISYSP_DIR = /DaisySP/
+CRLIB_DIR = /seed/CrLib/
 
 # Core location, and generic Makefile.
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core

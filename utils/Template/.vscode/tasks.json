@@ -100,6 +100,17 @@
         "$gcc"
       ],
       "type": "shell"
+    },
+    {
+      "command": "make",
+      "label": "build_crlib",
+      "options": {
+        "cwd": "${workspaceFolder}/@CRLIB_DIR@"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "type": "shell"
     }
   ],
   "version": "2.0.0"

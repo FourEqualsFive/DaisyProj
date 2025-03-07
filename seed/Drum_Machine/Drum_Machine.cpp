@@ -1,28 +1,43 @@
-#include "../CrLib/crlib.h"
+#include "../CrLib/Source/crlib.h"
+#include "daisy_seed.h"
+#include "daisysp.h"
 
 // Use the daisy namespace to prevent having to type
 // daisy:: before all libdaisy functions
 using namespace crlib;
+using namespace daisy;
+using namespace daisysp;
 
 // Declare a DaisySeed object called hardware
 DaisySeed hardware;
 
-Oscillator clickOsc;
-Oscillator bloopOsc;
+AdBass click;
+
+//Oscillator clickOsc;
+daisysp::Oscillator bloopOsc;
 WhiteNoise noise;
 
-AdEnv clickVolEnv, clickPitchEnv, tissEnv;
+daisysp::AdEnv clickVolEnv, clickPitchEnv, tissEnv;
 Adsr bloopPitchEnv, bloopVolEnv;
 AnalogBassDrum bassEnv;
 AnalogSnareDrum snareEnv;
 
 AdcChannelConfig adcConfig;
 
-Switch click, tiss, bass, snare;
-Switch bloop;
+Switch bloop, tiss, bass, snare;
+Switch clickT;
 
 bool bloopVolGate, bloopFreqGate;
+bool led_state = true;
 const int base_f = 600;
+
+void GpioTrig(AdBass drum, int edge){
+    //Trigger both envelopes on button press
+    if(edge) {
+        drum.TriggerEnv(0);
+        drum.TriggerEnv(1);
+    } // end if
+} // end GpioTrig()
 
 void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
                    AudioHandle::InterleavingOutputBuffer out,
@@ -31,23 +46,18 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
     int nOsc = 0;
     float freq_set, freqMod;
     float bassOsc_out, snareOsc_out = 0;
-    float clickOsc_out, clk_env_out;
+    //float clickOsc_out, clk_env_out;
     float bloopOsc_out, blp_env_out;
     float osc_out, noise_out, tss_env_out, sig;
+
     //Get rid of any bouncing
     tiss.Debounce();
-    click.Debounce();
+    clickT.Debounce();
     bass.Debounce();
     snare.Debounce();
     bloop.Debounce();
 
-    //If you press the click button...
-    if(click.RisingEdge())
-    {
-        //Trigger both envelopes!
-        clickVolEnv.Trigger();
-        clickPitchEnv.Trigger();
-    }
+    GpioTrig(click,clickT.RisingEdge());
 
     //If you press the bloop button...
     if(bloop.RisingEdge())
@@ -91,11 +101,12 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
 
         //Get the next volume samples
         tss_env_out = tissEnv.Process();
-        clk_env_out = clickVolEnv.Process();
+        //clk_env_out = clickVolEnv.Process();
         blp_env_out = bloopVolEnv.Process(bloopVolGate);
 
         freqMod = (1 + hardware.adc.GetFloat(0));
         freq_set = base_f * freqMod;
+        /*
         //Modify the click pitch envelope according to pot input
         clickPitchEnv.SetMax(freq_set);
         clickPitchEnv.SetMin((freq_set) - 550);
@@ -107,8 +118,8 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
         //Process the next oscillator sample
         clickOsc_out = clickOsc.Process();
         (clickOsc_out != 0) ? nOsc++ : 1 ;
-
-        //Set the click volume to the envelope's output
+*/
+        //Set the bloop volume to the envelope's output
         bloopOsc.SetAmp(blp_env_out);
         //Apply the pitch envelope to the bloop
         bloopOsc.SetFreq(freq_set * bloopPitchEnv.Process(bloopFreqGate));
@@ -133,7 +144,7 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
         //TODO: add proper compression instead of this nonsense
 
         if (nOsc == 0){ osc_out = 0; }
-        else { osc_out = (clickOsc_out + bassOsc_out + snareOsc_out + bloopOsc_out) / nOsc; }
+        else { osc_out = (click.CallBack(freq_set) + bassOsc_out + snareOsc_out + bloopOsc_out) / nOsc; }
         nOsc = 0;
         
         //Mix the two signals
@@ -161,14 +172,16 @@ int main(void)
     //Start reading values
     hardware.adc.Start();
 
+    click.Init(samplerate,base_f,28);
+    /*
     //Initialize oscillator for click drum
     clickOsc.Init(samplerate);
     clickOsc.SetWaveform(Oscillator::WAVE_TRI);
     clickOsc.SetAmp(1);
-
+    */
     //Initialize oscillator for bloop drum
     bloopOsc.Init(samplerate);
-    bloopOsc.SetWaveform(Oscillator::WAVE_TRI);
+    bloopOsc.SetWaveform(daisysp::Oscillator::WAVE_TRI);
     bloopOsc.SetFreq(base_f);
     bloopOsc.SetAmp(1);
 
@@ -181,11 +194,11 @@ int main(void)
 
     //Initialize envelopes, this one's for the tiss amplitude
     tissEnv.Init(samplerate);
-    tissEnv.SetTime(ADENV_SEG_ATTACK, .01);
-    tissEnv.SetTime(ADENV_SEG_DECAY, .2);
+    tissEnv.SetTime(daisysp::ADENV_SEG_ATTACK, .01);
+    tissEnv.SetTime(daisysp::ADENV_SEG_DECAY, .2);
     tissEnv.SetMax(1);
     tissEnv.SetMin(0);
-
+/*
     //This envelope will control the click oscillator's pitch
     //Note that this envelope is much faster than the volume
     clickPitchEnv.Init(samplerate);
@@ -200,7 +213,7 @@ int main(void)
     clickVolEnv.SetTime(ADENV_SEG_DECAY, 1);
     clickVolEnv.SetMax(1);
     clickVolEnv.SetMin(0);
-
+*/
     //Bloop oscillator pitch envelope
     bloopPitchEnv.Init(samplerate);
     bloopPitchEnv.SetTime(ADSR_SEG_ATTACK, .01);
@@ -221,11 +234,11 @@ int main(void)
     snare.Init(hardware.GetPin(25), samplerate / 48.f);
     bass.Init(hardware.GetPin(26), samplerate / 48.f);
     tiss.Init(hardware.GetPin(27), samplerate / 48.f);
-    click.Init(hardware.GetPin(28), samplerate / 48.f);
+    clickT.Init(hardware.GetPin(28), samplerate / 48.f);
 
     //Start calling the callback function
     hardware.StartAudio(AudioCallback);
 
     // Loop forever
     for(;;) {}
-}
+} // end main

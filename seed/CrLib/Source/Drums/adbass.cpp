@@ -2,8 +2,9 @@
 
 using namespace crlib;
 
-void AdBass::Init(float sample_rate, int base_f = 600){
+void AdBass::Init(float sample_rate, int base_f = 600, int pin_num = 28){
     base_f_ = base_f;
+    pin_num_ = pin_num;
 
     Oscillator::Init(sample_rate);
     amp_env_.Init(sample_rate);
@@ -21,9 +22,21 @@ void AdBass::Init(float sample_rate, int base_f = 600){
     amp_env_.SetTime(ADENV_SEG_DECAY, 1);
     amp_env_.SetMax(1);
     amp_env_.SetMin(0);
+}// end Init()
 
-}
+void AdBass::TriggerEnv(int env){
+    if (env){  amp_env_.Trigger();  }
+    else { freq_env_.Trigger(); }
+} // end GpioTrig()
 
-void AdBass::CallBack(float sample_rate, int pin_num){
+float AdBass::CallBack(float freq_set){
 
-}
+    freq_env_.SetMax(freq_set);
+    freq_env_.SetMin((freq_set) - 550);
+
+    SetAmp(amp_env_.Process());
+    SetFreq(freq_env_.Process());
+
+    return Process();
+
+} // end CallBack()

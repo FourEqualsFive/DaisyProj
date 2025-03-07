@@ -12,7 +12,8 @@
       "includePath": [
         "${workspaceFolder}/**",
         "${workspaceFolder}/@LIBDAISY_DIR@/**",
-        "${workspaceFolder}/@DAISYSP_DIR@/**"
+        "${workspaceFolder}/@DAISYSP_DIR@/**",
+        "${workspaceFolder}/@CRLIB_DIR@/**"
       ],
       "name": "Win32",
       "windowsSdkVersion": "10.0.17763.0"
@@ -29,7 +30,8 @@
       "includePath": [
         "${workspaceFolder}/**",
         "${workspaceFolder}/@LIBDAISY_DIR@/**",
-        "${workspaceFolder}/@DAISYSP_DIR@/**"
+        "${workspaceFolder}/@DAISYSP_DIR@/**",
+        "${workspaceFolder}/@CRLIB_DIR@/**"
       ],
       "name": "macOS"
     }
