@@ -3,6 +3,10 @@ if (${DAISYSP_DIR})
   add_subdirectory(${DAISYSP_DIR} DaisySP)
   set(DAISYSP_LIB DaisySP)
 endif()
+if (${CRLIB_DIR})
+  add_subdirectory(${CRLIB_DIR} CrLib)
+  set(CRLIB_LIB CrLib)
+endif()
 
 set(LINKER_SCRIPT ${LIBDAISY_DIR}/core/STM32H750IB_flash.lds)
 
@@ -12,6 +16,7 @@ target_link_libraries(${FIRMWARE_NAME}
   PRIVATE
   daisy
   ${DAISYSP_LIB}
+  ${CRLIB_LIB}
   )
 
 set_target_properties(${FIRMWARE_NAME} PROPERTIES

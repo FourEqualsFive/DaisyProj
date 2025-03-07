@@ -152,6 +152,10 @@ C_DEFS +=  \
 -DUSE_DAISYSP_LGPL
 endif
 
+ifdef CRLIB_DIR
+C_INCLUDES += -I$(CRLIB_DIR)/Source
+endif
+
 
 # Include FATFS files
 # This does not include the additional option files
@@ -258,6 +262,12 @@ endif
 ifeq ($(USE_DAISYSP_LGPL),1)
 LIBS += -ldaisysp-lgpl
 LIBDIR += -L $(DAISYSP_DIR)/DaisySP-LGPL/build
+endif
+
+
+ifdef CRLIB_DIR
+LIBS += -l:crlib.a
+LIBDIR += -L $(CRLIB_DIR)/build
 endif
 
 LDFLAGS ?=
