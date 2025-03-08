@@ -24,7 +24,7 @@ void AdBass::Init(float sample_rate, int base_f = 600){
 }// end Init()
 
 void AdBass::TriggerEnv(int env){
-    if (env == AMPLITUDE){  amp_env_.Trigger();  }
+    if (env == AD_AMPLITUDE){  amp_env_.Trigger();  }
     else { freq_env_.Trigger(); }
 } // end TiggerEnv()
 

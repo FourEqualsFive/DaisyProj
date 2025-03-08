@@ -13,7 +13,7 @@ metro \
 CONTROL_MOD_DIR = Control
 CONTROL_MODULES = \
 adenv \
-adwnoise \
+adsr \
 
 NOISE_MOD_DIR = Noise
 
@@ -23,7 +23,9 @@ oscillator \
 
 DRUM_MOD_DIR = Drums
 DRUM_MODULES = \
-adbass
+adbass \
+adwnoise \
+adsrosc \
 
 ######################################
 # source

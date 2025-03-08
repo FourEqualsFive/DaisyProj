@@ -1,21 +1,21 @@
 
 #pragma once
-#ifndef CR_ADBASS_H
-#define CR_ADBASS_H
+#ifndef CR_ADSROSC_H
+#define CR_ADSROSC_H
 #include <stdint.h>
 #include "../Synthesis/oscillator.h"
-#include "../Control/adenv.h"
+#include "../Control/adsr.h"
 
 #ifdef __cplusplus
 
 namespace crlib{
     
-enum AdBassEnvelope{ AD_FREQUENCY, AD_AMPLITUDE };
+enum AdsrOscEnvelope{ ADSR_FREQUENCY, ADSR_AMPLITUDE };
 
-class AdBass : public Oscillator{
+class AdsrOsc : public Oscillator{
     public:
-        AdBass() {}
-        ~AdBass() {}
+        AdsrOsc() {}
+        ~AdsrOsc() {}
 
         void Init(float sample_rate, int base_f);
         /*********************************************************************
@@ -46,7 +46,7 @@ class AdBass : public Oscillator{
             - 
         *********************************************************************/
 
-        float CallBack(float freq_set);
+        float CallBack(float freq_set, bool freq_gate, bool amp_gate);
         /*********************************************************************
             Parameters:
             \param sample_rate  sample rate of the audio engine being run
@@ -55,16 +55,8 @@ class AdBass : public Oscillator{
             Description:    Handles processing for individual envelopes
         *********************************************************************/
 
-        void TriggerEnv(int env);
-        /*********************************************************************
-            Parameters:
-            \param env      selects the amplitude or frequence envelope
-
-            Description:    Calls Trigger() for one of the two AdEnvs
-        *********************************************************************/
-
     private:
-        AdEnv amp_env_, freq_env_;
+        Adsr amp_env_, freq_env_;
         int base_f_;
 };
 

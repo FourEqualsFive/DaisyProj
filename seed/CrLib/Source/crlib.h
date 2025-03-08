@@ -4,10 +4,12 @@
 
 /** Control Modules */
 #include "Control/adenv.h"
+#include "Control/adsr.h"
 
 /** Drum Modules */
 #include "Drums/adbass.h"
 #include "Drums/adwnoise.h"
+#include "Drums/adsrosc.h"
 
 /** Noise Modules */
 #include "Noise/whitenoise.h"

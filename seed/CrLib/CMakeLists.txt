@@ -5,9 +5,11 @@ project(CRLIB VERSION 0.0.1)
 add_library(CrLib STATIC 
 Source/Utility/metro.cpp
 Source/Control/adenv.cpp
-Source/Control/adwnoise.cpp
+Source/Control/adsr.cpp
 Source/Synthesis/oscillator.cpp
 Source/Drums/adbass.cpp
+Source/Drums/adsrosc.cpp
+Source/Drums/adwnoise.cpp
 )
 
 

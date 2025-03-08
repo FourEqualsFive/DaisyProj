@@ -9,28 +9,30 @@ using namespace daisy;
 // Declare a DaisySeed object called hardware
 DaisySeed hardware;
 
-AdBass click;
-AdWNoise tiss;
+AdBass clickOsc;
+AdWNoise tissNoise;
+AdsrOsc bloopOsc;
 
-daisysp::Oscillator bloopOsc;
-
-Adsr bloopPitchEnv, bloopVolEnv;
 AnalogBassDrum bassEnv;
 AnalogSnareDrum snareEnv;
 
 AdcChannelConfig adcConfig;
 
-Switch bloop, bass, snare;
-Switch clickT, tissT;
+Switch bass, snare;
+Switch click, tiss, bloop;
 
 bool bloopVolGate, bloopFreqGate;
 bool led_state = true;
 const int base_f = 600;
 
 void ClickTrig(){
-    click.TriggerEnv(AMPLITUDE);
-    click.TriggerEnv(FREQUENCY);
+    clickOsc.TriggerEnv(AD_AMPLITUDE);
+    clickOsc.TriggerEnv(AD_FREQUENCY);
 }
 void TissTrig(){
-    tiss.TriggerEnv();
+    tissNoise.TriggerEnv();
+}
+void BloopTrig(){
+    bloopVolGate = !bloopVolGate;
+    bloopFreqGate = !bloopFreqGate;
 }
