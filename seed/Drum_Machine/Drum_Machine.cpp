@@ -5,10 +5,11 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
                    size_t                                size)
 {
     int nOsc = 0;
+    int deadClick = 0, deadBloop = 0, deadTiss = 0;
+    int deadSnare = 0, deadBass = 0;
     float freq_set, freqMod;
     float bassOsc_out, snareOsc_out = 0;
-    float clickOsc_out;
-    float bloopOsc_out;
+    float clickOsc_out, bloopOsc_out;
     float osc_out, noise_out, sig;
 
     //Get rid of any bouncing
@@ -21,47 +22,80 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
     if (click.RisingEdge()) { ClickTrig(); }
     if (tiss.RisingEdge()) { TissTrig(); }
     if (bloop.RisingEdge() || bloop.FallingEdge()) { BloopTrig(); }
-    if(bass.RisingEdge()) { bassEnv.Trig(); }
-    if(snare.RisingEdge()) { snareEnv.Trig(); }
+    if (bass.RisingEdge()) { bssGate = true ; bassEnv.Trig(); }
+    if (snare.RisingEdge()) { snrGate = true ; snareEnv.Trig(); }
 
     //Prepare the audio block
     for(size_t i = 0; i < size; i += 2)
     {
         /*******************************************************************
-         * \todo Make some external functions to clean up this loop [WIP]
          * \todo Only call .Process() when an envelope is triggered
-         * \todo Full switch to processing by frame (instead of by sample)
+         * \todo Process in larger blocks, test latency tradeoff
         *******************************************************************/
 
         freqMod = (1 + hardware.adc.GetFloat(0));
         freq_set = base_f * freqMod;
 
-        //Process the next bass sample
-        bassOsc_out = bassEnv.Process();
-        (bassOsc_out != 0) ? nOsc++ : 1 ;
-        
-        bloopOsc_out = bloopOsc.CallBack(freq_set, bloopFreqGate, bloopVolGate);
-        (bloopOsc_out != 0) ? nOsc++ : 1 ;
-        clickOsc_out = clickOsc.CallBack(freq_set);
-        (clickOsc_out != 0) ? nOsc++ : 1 ;
+        //Process the next samples
+        //Increment oscillator count for active processes
+        //Use individual gate and deadcounts to skip processing when no output
+        if (snrGate) {
+            snareOsc_out = snareEnv.Process();
+            (snareOsc_out != 0) ? nOsc++ : 1 ;
+            (snareOsc_out > -0.1) && (snareOsc_out < 0.1) ? deadSnare++ : deadSnare = 0;
+            (deadSnare > 4) ? snrGate = false : snrGate = true;
+        }
+        else { snareOsc_out = 0; }
 
-        noise_out = tissNoise.Callback();
+        if (bssGate) {
+            bassOsc_out = bassEnv.Process();
+            (bassOsc_out != 0) ? nOsc++ : 1 ;
+            (bassOsc_out > -0.1) && (bassOsc_out < 0.1) ? deadBass++ : deadBass = 0;
+            (deadBass > 4) ? bssGate = false : bssGate = true;
+        }
+        else { bassOsc_out = 0; }
 
+        if (blpGate) {
+            bloopOsc_out = bloopOsc.CallBack(freq_set, bloopFreqGate, bloopVolGate);
+            (bloopOsc_out != 0) ? nOsc++ : 1 ;
+            (bloopOsc_out > -0.1) && (bloopOsc_out < 0.1) ? deadBloop++ : deadBloop = 0;
+            (deadBloop > 4) ? blpGate = false : blpGate = true;
+        }
+        else { bloopOsc_out = 0; }
+
+        if (clkGate) {
+            clickOsc_out = clickOsc.CallBack(freq_set);
+            (clickOsc_out != 0) ? nOsc++ : 1 ;
+            (clickOsc_out > -0.1) && (clickOsc_out < 0.1) ? deadClick++ : deadClick = 0;
+            (deadClick > 4) ? clkGate = false : clkGate = true;
+        }
+        else { clickOsc_out = 0; }
+
+
+        if (tssGate) {
+            noise_out = tissNoise.Callback();
+            (noise_out > -0.1) && (noise_out < 0.1) ? deadTiss++ : deadTiss = 0;
+            (deadTiss > 4) ? tssGate = false : tssGate = true;
+        }
+        else { noise_out = 0; }
+
+        //Dynamically compress the oscillator samples to prevent clipping
         /*********************************************************
          *\todo add proper compression instead of this nonsense
         *********************************************************/
         if (nOsc == 0){ osc_out = 0; }
         else { osc_out = (clickOsc_out + bassOsc_out + snareOsc_out + bloopOsc_out) / nOsc; }
         nOsc = 0;
-        
-        //Mix the two signals
+
+        //Mix the signals
         sig = .3 * noise_out + .7 * osc_out;
 
         //Set the left and right outputs to the mixed signals
         out[i]     = sig;
         out[i + 1] = sig;
-    }
-}
+
+    } // end for loop
+} // end AudioCallback()
 
 int main(void)
 {
