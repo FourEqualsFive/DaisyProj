@@ -18,16 +18,16 @@ at present:
 > - Polyphonic synthesis
 > - FFT and Z-Transform processing
 
-## Current Programs
-> - Drum_Machine: 
->   - Based on *DaisyExamples/seed/Drum/*
->   - Expanded to include more drum sounds and customization
->   - Required more efficient sample/block processing
->   - Required better compression
+### Current Programs
+__Drum_Machine__ (*/seed/Drum_Machine/*): 
+> - Based on *DaisyExamples/seed/Drum/*
+> - Expanded to include more drum sounds and customization
+> - Required more efficient sample/block processing
+> - Required better compression
 
-## CrLib
+### CrLib
 
-__Path__: *seed/CrLib/*
+__Path__: */seed/CrLib/*
 
 This is the custom library to replace DaisySP, currently includes the following
 direct copies from the DaisySP library:
