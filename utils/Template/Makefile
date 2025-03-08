@@ -7,6 +7,7 @@ CPP_SOURCES = Template.cpp
 # Library Locations
 LIBDAISY_DIR = @LIBDAISY_DIR@
 DAISYSP_DIR = @DAISYSP_DIR@
+CRLIB_DIR = @CRLIB_DIR@
 
 # Core location, and generic Makefile.
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core

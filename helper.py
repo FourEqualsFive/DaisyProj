@@ -26,6 +26,7 @@ supported_boards = ['seed', 'pod', 'patch',
 # Dirs to be ignored by update, and other global commands
 global_filter_dirs = ["libDaisy",
                       "DaisySP",
+                      "seed/CrLib",
                       ".github",
                       ".vscode",
                       ".git",
@@ -128,6 +129,7 @@ def update_project(destination, libs, include_vs=False):
             rewrite_replace(dname, 'Template', proj_name)
             rewrite_replace(dname, '@LIBDAISY_DIR@', libs + '/libDaisy')
             rewrite_replace(dname, '@DAISYSP_DIR@', libs + '/DaisySP')
+            rewrite_replace(dname, '@CRLIB_DIR@', libs + '/CrLib')
 
 
 # Called via the 'copy' operation
@@ -195,6 +197,9 @@ def create_from_template(destination, board, libs, include_vs = False):
     daisysp_dir=libs + "/DaisySP/"
     rec_rewrite_replace(destination, "@DAISYSP_DIR@", daisysp_dir)
 
+    crlib_dir=libs.removesuffix('/..') + "/CrLib/"
+    rec_rewrite_replace(destination, "@CRLIB_DIR@", crlib_dir)
+
     src_file=pathlib.Path(destination + os.path.sep + \
                           os.path.basename(destination) + '.cpp')
     # Copy resources/diagram files (if available)
@@ -236,11 +241,13 @@ def create_from_template(destination, board, libs, include_vs = False):
     # Rewrite  Source file
     with open(src_file, 'w') as f:
         f.write('#include "daisy_{}.h"\n'.format(board))
-        f.write('#include "daisysp.h"\n\n') # extra line below
+        f.write('#include "daisysp.h"\n') # extra line below
+        f.write('#include "crlib.h"\n\n') # extra line below
         f.write('using namespace daisy;\n')
         if board == 'patch_sm':
             f.write('using namespace patch_sm;\n') # extra line below
-        f.write('using namespace daisysp;\n\n') # extra line below
+        f.write('using namespace daisysp;\n') # extra line below
+        f.write('using namespace crlib;\n\n') # extra line below
         f.write('{} hw;\n\n'.format(board_class_names.get(board)))
         f.write('void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)\n')
         f.write('{\n')
