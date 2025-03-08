@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.14)
 project(CRLIB VERSION 0.0.1)
 
 add_library(CrLib STATIC 
+Source/Utility/metro.cpp
 Source/Control/adenv.cpp
 Source/Synthesis/oscillator.cpp
 Source/Drums/adbass.cpp

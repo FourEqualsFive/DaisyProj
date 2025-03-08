@@ -44,14 +44,6 @@ class AdBass : public Oscillator{
                 *other properties follow base class Init()
             - 
         *********************************************************************/
-/*
-        void GpioTrig ();
-        *********************************************************************
-            Parameters:
-            \param sample_rate  sample rate of the audio engine being run
-
-            Description:    Handles GPIO triggering
-        *********************************************************************/
 
         float CallBack(float freq_set);
         /*********************************************************************

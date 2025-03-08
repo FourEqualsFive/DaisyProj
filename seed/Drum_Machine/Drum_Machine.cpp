@@ -17,12 +17,14 @@ AdBass click;
 daisysp::Oscillator bloopOsc;
 WhiteNoise noise;
 
-daisysp::AdEnv clickVolEnv, clickPitchEnv, tissEnv;
+daisysp::AdEnv tissEnv;
 Adsr bloopPitchEnv, bloopVolEnv;
 AnalogBassDrum bassEnv;
 AnalogSnareDrum snareEnv;
 
 AdcChannelConfig adcConfig;
+
+Metro tick;
 
 Switch bloop, tiss, bass, snare;
 Switch clickT;
@@ -31,12 +33,10 @@ bool bloopVolGate, bloopFreqGate;
 bool led_state = true;
 const int base_f = 600;
 
-void GpioTrig(AdBass drum, int edge){
+void AdEnvTrig(){
     //Trigger both envelopes on button press
-    if(edge) {
-        drum.TriggerEnv(0);
-        drum.TriggerEnv(1);
-    } // end if
+        click.TriggerEnv(0);
+        click.TriggerEnv(1);
 } // end GpioTrig()
 
 void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
@@ -46,7 +46,7 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
     int nOsc = 0;
     float freq_set, freqMod;
     float bassOsc_out, snareOsc_out = 0;
-    //float clickOsc_out, clk_env_out;
+    float clickOsc_out;
     float bloopOsc_out, blp_env_out;
     float osc_out, noise_out, tss_env_out, sig;
 
@@ -57,7 +57,8 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
     snare.Debounce();
     bloop.Debounce();
 
-    GpioTrig(click,clickT.RisingEdge());
+    //AdEnvTrig(tick.Process());
+    if (clickT.RisingEdge()) { AdEnvTrig(); }
 
     //If you press the bloop button...
     if(bloop.RisingEdge())
@@ -95,9 +96,11 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
     //Prepare the audio block
     for(size_t i = 0; i < size; i += 2)
     {
-        //TODO: Make some external functions to clean up this loop
-        //TODO: Only call .Process() when an envelope is triggered
-        //TODO: Processing by frame instead of by sample?
+        /*******************************************************************
+         * \todo Make some external functions to clean up this loop [IN PROGRESS]
+         * \todo Only call .Process() when an envelope is triggered
+         * \todo Full switch to processing by frame (instead of by sample)
+        *******************************************************************/
 
         //Get the next volume samples
         tss_env_out = tissEnv.Process();
@@ -141,10 +144,14 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
         //Set the sample to the correct volume
         noise_out *= tss_env_out;
         
-        //TODO: add proper compression instead of this nonsense
+        clickOsc_out = click.CallBack(freq_set);
+        (clickOsc_out != 0) ? nOsc++ : 1 ;
 
+        /*********************************************************
+         *\todo add proper compression instead of this nonsense
+        *********************************************************/
         if (nOsc == 0){ osc_out = 0; }
-        else { osc_out = (click.CallBack(freq_set) + bassOsc_out + snareOsc_out + bloopOsc_out) / nOsc; }
+        else { osc_out = (clickOsc_out + bassOsc_out + snareOsc_out + bloopOsc_out) / nOsc; }
         nOsc = 0;
         
         //Mix the two signals
@@ -165,6 +172,8 @@ int main(void)
     hardware.Init();
     hardware.SetAudioBlockSize(4);
     float samplerate = hardware.AudioSampleRate();
+    
+    tick.Init(1.0f, samplerate);
     
     //Initialize the adc
     adcConfig.InitSingle(hardware.GetPin(15));
