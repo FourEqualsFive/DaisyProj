@@ -10,6 +10,11 @@
 #include "Drums/adbass.h"
 #include "Drums/adwnoise.h"
 #include "Drums/adsrosc.h"
+#include "Drums/analogbassdrum.h"
+#include "Drums/analogsnaredrum.h"
+
+/** Filter Modules */
+#include "Filters/svf.h"
 
 /** Noise Modules */
 #include "Noise/whitenoise.h"

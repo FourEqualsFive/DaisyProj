@@ -1,9 +1,7 @@
 #include "daisy_seed.h"
-#include "daisysp.h"
 #include "../CrLib/Source/crlib.h"
 
 using namespace crlib;
-using namespace daisysp;
 using namespace daisy;
 
 // Declare a DaisySeed object called hardware

@@ -6,10 +6,13 @@ add_library(CrLib STATIC
 Source/Utility/metro.cpp
 Source/Control/adenv.cpp
 Source/Control/adsr.cpp
+Source/Filters/svf.cpp
 Source/Synthesis/oscillator.cpp
 Source/Drums/adbass.cpp
 Source/Drums/adsrosc.cpp
 Source/Drums/adwnoise.cpp
+Source/Drums/analogbassdrum.cpp
+Source/Drums/analogsnaredrum.cpp
 )
 
 
@@ -25,6 +28,7 @@ target_include_directories(CrLib PUBLIC
   "Source"
   "Source/Utility"
   "Source/Control"
+  "Source/Filters"
   "Source/Noise"
   "Source/Synthesis"
   "Source/Drums"
