@@ -14,6 +14,8 @@ AdsrOsc bloopOsc;
 AnalogBassDrum bassEnv;
 AnalogSnareDrum snareEnv;
 
+Limiter limit;
+
 AdcChannelConfig adcConfig;
 
 Switch bass, snare;

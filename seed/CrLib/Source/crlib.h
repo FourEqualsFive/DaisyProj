@@ -6,6 +6,9 @@
 #include "Control/adenv.h"
 #include "Control/adsr.h"
 
+/** Dynamics Modules */
+#include "Dynamics/limiter.h"
+
 /** Drum Modules */
 #include "Drums/adbass.h"
 #include "Drums/adwnoise.h"

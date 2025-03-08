@@ -7,7 +7,7 @@ void AdWNoise::Init(float sample_rate){
     env_.Init(sample_rate);
     env_.SetTime(ADENV_SEG_ATTACK, .01);
     env_.SetTime(ADENV_SEG_DECAY, .2);
-    env_.SetMax(1);
+    env_.SetMax(0.7);
     env_.SetMin(0);
 }
 

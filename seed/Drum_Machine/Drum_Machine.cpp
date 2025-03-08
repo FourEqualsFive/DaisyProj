@@ -10,7 +10,7 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
     float freq_set, freqMod;
     float bassOsc_out, snareOsc_out = 0;
     float clickOsc_out, bloopOsc_out;
-    float osc_out, noise_out, sig;
+    float noise_out, sig[size];
 
     //Get rid of any bouncing
     click.Debounce();
@@ -29,7 +29,6 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
     for(size_t i = 0; i < size; i += 2)
     {
         /*******************************************************************
-         * \todo Only call .Process() when an envelope is triggered
          * \todo Process in larger blocks, test latency tradeoff
         *******************************************************************/
 
@@ -41,15 +40,15 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
         //Use individual gate and deadcounts to skip processing when no output
         if (snrGate) {
             snareOsc_out = snareEnv.Process();
-            (snareOsc_out != 0) ? nOsc++ : 1 ;
+            (snareOsc_out > -0.1) && (snareOsc_out < 0.1) ? 0 : nOsc++ ;
             (snareOsc_out > -0.1) && (snareOsc_out < 0.1) ? deadSnare++ : deadSnare = 0;
             (deadSnare > 4) ? snrGate = false : snrGate = true;
         }
         else { snareOsc_out = 0; }
 
         if (bssGate) {
-            bassOsc_out = bassEnv.Process();
-            (bassOsc_out != 0) ? nOsc++ : 1 ;
+            bassOsc_out = 5 * bassEnv.Process();
+            (bassOsc_out > -0.1) && (bassOsc_out < 0.1) ? 0 : nOsc++ ;
             (bassOsc_out > -0.1) && (bassOsc_out < 0.1) ? deadBass++ : deadBass = 0;
             (deadBass > 4) ? bssGate = false : bssGate = true;
         }
@@ -57,15 +56,15 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
 
         if (blpGate) {
             bloopOsc_out = bloopOsc.CallBack(freq_set, bloopFreqGate, bloopVolGate);
-            (bloopOsc_out != 0) ? nOsc++ : 1 ;
+            (bloopOsc_out > -0.1) && (bloopOsc_out < 0.1) ? 0 : nOsc++ ;
             (bloopOsc_out > -0.1) && (bloopOsc_out < 0.1) ? deadBloop++ : deadBloop = 0;
             (deadBloop > 4) ? blpGate = false : blpGate = true;
         }
         else { bloopOsc_out = 0; }
 
         if (clkGate) {
-            clickOsc_out = clickOsc.CallBack(freq_set);
-            (clickOsc_out != 0) ? nOsc++ : 1 ;
+            clickOsc_out = .5 * clickOsc.CallBack(freq_set);
+            (clickOsc_out > -0.1) && (clickOsc_out < 0.1) ? 0 : nOsc++ ;
             (clickOsc_out > -0.1) && (clickOsc_out < 0.1) ? deadClick++ : deadClick = 0;
             (deadClick > 4) ? clkGate = false : clkGate = true;
         }
@@ -74,27 +73,29 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
 
         if (tssGate) {
             noise_out = tissNoise.Callback();
+            (noise_out > -0.1) && (noise_out < 0.1) ? 0 : nOsc++ ;
             (noise_out > -0.1) && (noise_out < 0.1) ? deadTiss++ : deadTiss = 0;
             (deadTiss > 4) ? tssGate = false : tssGate = true;
         }
         else { noise_out = 0; }
-
-        //Dynamically compress the oscillator samples to prevent clipping
         /*********************************************************
          *\todo add proper compression instead of this nonsense
         *********************************************************/
-        if (nOsc == 0){ osc_out = 0; }
-        else { osc_out = (clickOsc_out + bassOsc_out + snareOsc_out + bloopOsc_out) / nOsc; }
+        sig[i] = noise_out + clickOsc_out + bassOsc_out + snareOsc_out + bloopOsc_out;
+        sig[i] = sig[i] / (nOsc + 1);
         nOsc = 0;
 
-        //Mix the signals
-        sig = .3 * noise_out + .7 * osc_out;
+    } // end audio processing
 
-        //Set the left and right outputs to the mixed signals
-        out[i]     = sig;
-        out[i + 1] = sig;
+    //Soft limit the oscillator samples to prevent clipping
+    //limit.ProcessBlock(sig,1,1);
 
-    } // end for loop
+    //Send to output
+    for(size_t i = 0; i < size; i += 2) {
+        out[i]     = sig[i];
+        out[i + 1] = sig[i];
+    }
+
 } // end AudioCallback()
 
 int main(void)
@@ -109,6 +110,9 @@ int main(void)
     adcConfig.InitSingle(hardware.GetPin(15));
     hardware.adc.Init(&adcConfig, 1);
     hardware.adc.Start();
+
+    //Initialize limiter
+    limit.Init();
 
     //Initialize drums
     clickOsc.Init(samplerate,base_f);
