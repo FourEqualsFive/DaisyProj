@@ -10,17 +10,18 @@
 
 namespace crlib{
     
+enum AdBassEnvelope{ FREQUENCY, AMPLITUDE };
+
 class AdBass : public Oscillator{
     public:
         AdBass() {}
         ~AdBass() {}
 
-        void Init(float sample_rate, int base_f, int pin_num);
+        void Init(float sample_rate, int base_f);
         /*********************************************************************
             Parameters:
             \param sample_rate  sample rate of the audio engine being run
             \param base_f       the max frequency to be reached during Attack
-            \param pin_num      the GPIO identifier for the triggering input
 
             Description:    Initializes the Oscillator and both AD Envelopes
 
@@ -55,11 +56,16 @@ class AdBass : public Oscillator{
         *********************************************************************/
 
         void TriggerEnv(int env);
+        /*********************************************************************
+            Parameters:
+            \param env      selects the amplitude or frequence envelope
+
+            Description:    Calls Trigger() for one of the two AdEnvs
+        *********************************************************************/
 
     private:
         AdEnv amp_env_, freq_env_;
-        int base_f_, pin_num_;
-        float set_f_;
+        int base_f_;
 };
 
 } // end namespace crlib

@@ -13,6 +13,9 @@ metro \
 CONTROL_MOD_DIR = Control
 CONTROL_MODULES = \
 adenv \
+adwnoise \
+
+NOISE_MOD_DIR = Noise
 
 SYNTHESIS_MOD_DIR = Synthesis
 SYNTHESIS_MODULES = \
@@ -26,10 +29,10 @@ adbass
 # source
 ######################################
 
+CPP_SOURCES += $(addsuffix .cpp, $(MODULE_DIR)/$(UTILITY_MOD_DIR)/$(UTILITY_MODULES))
 CPP_SOURCES += $(addsuffix .cpp, $(MODULE_DIR)/$(CONTROL_MOD_DIR)/$(CONTROL_MODULES))
 CPP_SOURCES += $(addsuffix .cpp, $(MODULE_DIR)/$(SYNTHESIS_MOD_DIR)/$(SYNTHESIS_MODULES))
 CPP_SOURCES += $(addsuffix .cpp, $(MODULE_DIR)/$(DRUM_MOD_DIR)/$(DRUM_MODULES))
-CPP_SOURCES += $(addsuffix .cpp, $(MODULE_DIR)/$(UTILITY_MOD_DIR)/$(UTILITY_MODULES))
 
 ######################################
 # building variables
@@ -105,6 +108,7 @@ C_INCLUDES = \
 -I$(MODULE_DIR) \
 -I$(MODULE_DIR)/$(UTLITY_MOD_DIR) \
 -I$(MODULE_DIR)/$(CONTROL_MOD_DIR) \
+-I$(MODULE_DIR)/$(NOISE_MOD_DIR) \
 -I$(MODULE_DIR)/$(SYNTHESIS_MOD_DIR) \
 -I$(MODULE_DIR)/$(DRUM_MOD_DIR) 
 

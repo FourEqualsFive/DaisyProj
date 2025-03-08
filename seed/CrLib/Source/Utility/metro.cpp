@@ -2,7 +2,7 @@
 #include "metro.h"
 #include "dsp.h"
 
-using namespace daisysp;
+using namespace crlib;
 
 void Metro::Init(float freq, float sample_rate)
 {

@@ -1,10 +1,10 @@
 #pragma once
-#ifndef DSY_METRO_H
-#define DSY_METRO_H
+#ifndef CRLIB_METRO_H
+#define CRLIB_METRO_H
 #include <stdint.h>
 #ifdef __cplusplus
 
-namespace daisysp
+namespace crlib
 {
 /** Creates a clock signal at a specific frequency.
 */

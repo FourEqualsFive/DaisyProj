@@ -5,6 +5,7 @@ project(CRLIB VERSION 0.0.1)
 add_library(CrLib STATIC 
 Source/Utility/metro.cpp
 Source/Control/adenv.cpp
+Source/Control/adwnoise.cpp
 Source/Synthesis/oscillator.cpp
 Source/Drums/adbass.cpp
 )
@@ -22,6 +23,7 @@ target_include_directories(CrLib PUBLIC
   "Source"
   "Source/Utility"
   "Source/Control"
+  "Source/Noise"
   "Source/Synthesis"
   "Source/Drums"
   )
