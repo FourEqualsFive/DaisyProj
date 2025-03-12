@@ -29,14 +29,15 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
     freq_set = base_f * freqMod;
 
     //Fill bassOsc_out with a block of samples
-//    bassEnv.Process(bassOsc_out, size);
+    bassEnv.Process(bassOsc_out, size);
     snareEnv.Process(snareOsc_out, size);
 
     //Prepare the rest of the audio block
     for(size_t i = 0; i < size; i += 2)
     {
         /*******************************************************************************
-         * \todo Process in larger blocks, test latency tradeoff
+         * \todo Further optimize block processing
+         * \todo Add gates and deadcounts back?
          * \todo Look into wavetable synthesis for 808 drums
         *******************************************************************************/
 /*
@@ -62,7 +63,7 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
         
         //Sum all voices, save the result for block processing
         sig[i] = noise_out + clickOsc_out + bloopOsc_out;
-//        sig[i] += bassOsc_out[i];
+        sig[i] += bassOsc_out[i];
         sig[i] += snareOsc_out[i];
 
     } // end audio processing
@@ -83,7 +84,7 @@ int main(void)
     // Configure and Initialize the Daisy Seed
     hardware.Configure();
     hardware.Init();
-    hardware.SetAudioBlockSize(128);
+    hardware.SetAudioBlockSize(48);
     float samplerate = hardware.AudioSampleRate();
     int blocksize = hardware.AudioBlockSize();
     
