@@ -58,6 +58,8 @@ class AdsrOsc : public Oscillator{
     private:
         Adsr amp_env_, freq_env_;
         int base_f_;
+        bool gate_;
+        float count_;
 };
 
 } // end namespace crlib

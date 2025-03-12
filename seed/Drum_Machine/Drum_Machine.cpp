@@ -4,10 +4,9 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
                    AudioHandle::InterleavingOutputBuffer out,
                    size_t                                size)
 {
-    unsigned int deadClick = 0, deadBloop = 0, deadTiss = 0;
-    unsigned int deadSnare = 0, deadBass = 0;
+    //unsigned int deadSnare = 0;
     float freq_set, freqMod;
-    float bassOsc_out, snareOsc_out = 0;
+    float bassOsc_out[size], snareOsc_out = 0;
     float clickOsc_out, bloopOsc_out;
     float noise_out, sig[size];
 
@@ -18,72 +17,57 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
     snare.Debounce();
     bloop.Debounce();
 
+    //Trigger envelopes on button press
     if (click.RisingEdge()) { ClickTrig(); }
     if (tiss.RisingEdge()) { TissTrig(); }
     if (bloop.RisingEdge() || bloop.FallingEdge()) { BloopTrig(); }
     if (bass.RisingEdge()) { bssGate = true ; bassEnv.Trig(); }
     if (snare.RisingEdge()) { snrGate = true ; snareEnv.Trig(); }
+    
+    //Read the next ADC samples
+    freqMod = (1 + hardware.adc.GetFloat(0));
+    freq_set = base_f * freqMod;
 
-    //Prepare the audio block
+    //Fill bassOsc_out with a block of samples
+    //bassEnv.Process(bassOsc_out, size, bssGate);
+
+    //Prepare the rest of the audio block
     for(size_t i = 0; i < size; i += 2)
     {
         /*******************************************************************************
-         * \todo Change voice gate to work on env length instead of signal amplitude
          * \todo Process in larger blocks, test latency tradeoff
+         * \todo Look into wavetable synthesis for 808 drums
         *******************************************************************************/
 
-        freqMod = (1 + hardware.adc.GetFloat(0));
-        freq_set = base_f * freqMod;
-
         //Process the next samples
-        //Increment oscillator count for active processes
         //Use individual gate and deadcounts to skip processing when no output
-
+/*
         if (snrGate) {
             snareOsc_out = snareEnv.Process();
             (snareOsc_out > -0.1) && (snareOsc_out < 0.1) ? deadSnare++ : deadSnare = 0;
             (deadSnare > size) ? snrGate = false : snrGate = true;
         }
         else { snareOsc_out = 0; }
-
         if (bssGate) {
             bassOsc_out = 5 * bassEnv.Process();
             (bassOsc_out > -0.1) && (bassOsc_out < 0.1) ? deadBass++ : deadBass = 0;
             (deadBass > size) ? bssGate = false : bssGate = true;
         }
         else { bassOsc_out = 0; }
-
-        if (blpGate) {
-            bloopOsc_out = bloopOsc.CallBack(freq_set, bloopFreqGate, bloopVolGate);
-            (bloopOsc_out > -0.1) && (bloopOsc_out < 0.1) ? deadBloop++ : deadBloop = 0;
-            (deadBloop > size) ? blpGate = false : blpGate = true;
-        }
-        else { bloopOsc_out = 0; }
-
-        if (clkGate) {
-            clickOsc_out = .5 * clickOsc.CallBack(freq_set);
-            (clickOsc_out > -0.1) && (clickOsc_out < 0.1) ? deadClick++ : deadClick = 0;
-            (deadClick > size) ? clkGate = false : clkGate = true;
-        }
-        else { clickOsc_out = 0; }
-
-
-        if (tssGate) {
-            noise_out = tissNoise.Callback();
-            (noise_out > -0.1) && (noise_out < 0.1) ? deadTiss++ : deadTiss = 0;
-            (deadTiss > size) ? tssGate = false : tssGate = true;
-        }
-        else { noise_out = 0; }
+*/
+        bloopOsc_out = bloopOsc.CallBack(freq_set, bloopFreqGate, bloopVolGate);
+        clickOsc_out = .5 * clickOsc.CallBack(freq_set);
+        noise_out = tissNoise.Callback();
         
         //Sum all voices, save the result for block processing
-        sig[i] = noise_out + clickOsc_out + bassOsc_out + snareOsc_out + bloopOsc_out;
+        sig[i] = noise_out + clickOsc_out + snareOsc_out + bloopOsc_out;
 
     } // end audio processing
 
     //Soft limit the oscillator samples to prevent clipping
     limit.ProcessBlock(sig,size,1);
 
-    //Send to output
+    //Send sample block to output
     for(size_t i = 0; i < size; i += 2) {
         out[i]     = sig[i];
         out[i + 1] = sig[i];

@@ -14,6 +14,7 @@ Source/Drums/adsrosc.cpp
 Source/Drums/adwnoise.cpp
 Source/Drums/analogbassdrum.cpp
 Source/Drums/analogsnaredrum.cpp
+Source/Drums/cr808bass.cpp
 )
 
 

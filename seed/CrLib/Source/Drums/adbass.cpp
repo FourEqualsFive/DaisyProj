@@ -4,6 +4,7 @@ using namespace crlib;
 
 void AdBass::Init(float sample_rate, int base_f = 600){
     base_f_ = base_f;
+    gate_ = 0;
 
     Oscillator::Init(sample_rate);
     amp_env_.Init(sample_rate);
@@ -23,19 +24,28 @@ void AdBass::Init(float sample_rate, int base_f = 600){
     amp_env_.SetMin(0);
 }// end Init()
 
-void AdBass::TriggerEnv(int env){
-    if (env == AD_AMPLITUDE){  amp_env_.Trigger();  }
-    else { freq_env_.Trigger(); }
+void AdBass::TriggerEnv(){
+    float freq_gate, amp_gate;
+    freq_gate = freq_env_.GetEnvTime();
+    amp_gate = amp_env_.GetEnvTime();
+    (freq_gate > amp_gate) ? (gate_ = freq_gate) : (gate_ = amp_gate);
+    amp_env_.Trigger(); 
+    freq_env_.Trigger();
 } // end TiggerEnv()
 
 float AdBass::CallBack(float freq_set){
 
-    freq_env_.SetMax(freq_set);
-    freq_env_.SetMin((freq_set) - 550);
+    if (gate_){
+        freq_env_.SetMax(freq_set);
+        freq_env_.SetMin((freq_set) - 550);
 
-    SetAmp(amp_env_.Process());
-    SetFreq(freq_env_.Process());
+        SetAmp(amp_env_.Process());
+        SetFreq(freq_env_.Process());
 
-    return Process();
+        gate_--;
+
+        return Process();
+    }
+    else { return 0; }
 
 } // end CallBack()

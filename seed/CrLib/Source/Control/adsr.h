@@ -78,6 +78,8 @@ class Adsr
     */
     inline bool IsRunning() const { return mode_ != ADSR_SEG_IDLE; }
 
+    inline float GetReleaseTime() { return releaseTime_; };
+
   private:
     float   sus_level_{0.f};
     float   x_{0.f};

@@ -35,6 +35,7 @@ class AdWNoise : public WhiteNoise{
 
     private:
         AdEnv env_;
+        float gate_;
 };
 
 } // end namespace crlib

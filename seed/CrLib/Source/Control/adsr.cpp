@@ -92,7 +92,6 @@ void Adsr::SetTimeConstant(float timeInS, float& time, float& coeff)
     }
 }
 
-
 float Adsr::Process(bool gate)
 {
     float out = 0.0f;

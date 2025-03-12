@@ -15,6 +15,7 @@
 #include "Drums/adsrosc.h"
 #include "Drums/analogbassdrum.h"
 #include "Drums/analogsnaredrum.h"
+#include "Drums/cr808bass.h"
 
 /** Filter Modules */
 #include "Filters/svf.h"

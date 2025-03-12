@@ -63,6 +63,15 @@ void AdEnv::Init(float sample_rate)
     }
 }
 
+float AdEnv::GetEnvTime()
+{
+    float sum = 0;
+    for (uint8_t i = 0; i < ADENV_SEG_LAST; i++){
+        sum += segment_time_[i];
+    }
+    return sum;
+}
+
 float AdEnv::Process()
 {
     uint32_t time_samps;

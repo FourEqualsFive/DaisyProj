@@ -27,6 +27,7 @@ class AdBass : public Oscillator{
 
             Defaults:
             - base_f_ = base_f = 600
+            - gate_ = false
             - Oscillator
                 *waveform_ = WAVE_TRI
                 *amp_ = 1
@@ -55,17 +56,17 @@ class AdBass : public Oscillator{
             Description:    Handles processing for individual envelopes
         *********************************************************************/
 
-        void TriggerEnv(int env);
+        void TriggerEnv();
         /*********************************************************************
             Parameters:
-            \param env      selects the amplitude or frequence envelope
 
-            Description:    Calls Trigger() for one of the two AdEnvs
+            Description:    Calls Trigger() for the two AdEnvs
         *********************************************************************/
 
     private:
         AdEnv amp_env_, freq_env_;
         int base_f_;
+        float gate_;
 };
 
 } // end namespace crlib

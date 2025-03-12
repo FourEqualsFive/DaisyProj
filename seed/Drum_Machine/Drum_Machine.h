@@ -11,7 +11,7 @@ AdBass clickOsc;
 AdWNoise tissNoise;
 AdsrOsc bloopOsc;
 
-AnalogBassDrum bassEnv;
+cr808bass bassEnv;
 AnalogSnareDrum snareEnv;
 
 Limiter limit;
@@ -22,23 +22,19 @@ Switch bass, snare;
 Switch click, tiss, bloop;
 
 bool bloopVolGate, bloopFreqGate;
-bool clkGate = false, blpGate = false;
-bool tssGate = false, bssGate = false;
+bool bssGate = false;
 bool snrGate = false;
 bool led_state = true;
 const int base_f = 600;
 
 void ClickTrig(){
-    clkGate = true;
-    clickOsc.TriggerEnv(AD_AMPLITUDE);
-    clickOsc.TriggerEnv(AD_FREQUENCY);
+    clickOsc.TriggerEnv();
+    clickOsc.TriggerEnv();
 }
 void TissTrig(){
-    tssGate = true;
     tissNoise.TriggerEnv();
 }
 void BloopTrig(){
-    blpGate = true;
     bloopVolGate = !bloopVolGate;
     bloopFreqGate = !bloopFreqGate;
 }

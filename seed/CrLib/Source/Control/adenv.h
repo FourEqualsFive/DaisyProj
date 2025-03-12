@@ -77,6 +77,8 @@ class AdEnv
     */
     inline void SetMax(float max) { max_ = max; }
     /** Returns the current output value without processing the next sample */
+    float GetEnvTime();
+    /** Returns the current output value without processing the next sample */
     inline float GetValue() const { return (output_ * (max_ - min_)) + min_; }
     /** Returns the segment of the envelope that the phase is currently located
         in.
