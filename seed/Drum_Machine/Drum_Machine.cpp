@@ -4,9 +4,9 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
                    AudioHandle::InterleavingOutputBuffer out,
                    size_t                                size)
 {
-    //unsigned int deadSnare = 0;
+    unsigned int deadSnare = 0;
     float freq_set, freqMod;
-    float bassOsc_out[size], snareOsc_out = 0;
+    float bassOsc_out[size], snareOsc_out[size];
     float clickOsc_out, bloopOsc_out;
     float noise_out, sig[size];
 
@@ -29,7 +29,8 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
     freq_set = base_f * freqMod;
 
     //Fill bassOsc_out with a block of samples
-    //bassEnv.Process(bassOsc_out, size, bssGate);
+//    bassEnv.Process(bassOsc_out, size);
+    snareEnv.Process(snareOsc_out, size);
 
     //Prepare the rest of the audio block
     for(size_t i = 0; i < size; i += 2)
@@ -38,16 +39,16 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
          * \todo Process in larger blocks, test latency tradeoff
          * \todo Look into wavetable synthesis for 808 drums
         *******************************************************************************/
-
+/*
         //Process the next samples
         //Use individual gate and deadcounts to skip processing when no output
-/*
         if (snrGate) {
             snareOsc_out = snareEnv.Process();
             (snareOsc_out > -0.1) && (snareOsc_out < 0.1) ? deadSnare++ : deadSnare = 0;
             (deadSnare > size) ? snrGate = false : snrGate = true;
         }
         else { snareOsc_out = 0; }
+
         if (bssGate) {
             bassOsc_out = 5 * bassEnv.Process();
             (bassOsc_out > -0.1) && (bassOsc_out < 0.1) ? deadBass++ : deadBass = 0;
@@ -60,7 +61,9 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
         noise_out = tissNoise.Callback();
         
         //Sum all voices, save the result for block processing
-        sig[i] = noise_out + clickOsc_out + snareOsc_out + bloopOsc_out;
+        sig[i] = noise_out + clickOsc_out + bloopOsc_out;
+//        sig[i] += bassOsc_out[i];
+        sig[i] += snareOsc_out[i];
 
     } // end audio processing
 

@@ -37,6 +37,7 @@ adsrosc \
 analogbassdrum \
 analogsnaredrum \
 cr808bass \
+cr808snare \
 
 ######################################
 # source

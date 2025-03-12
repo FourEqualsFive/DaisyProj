@@ -147,7 +147,7 @@ void cr808bass::Process(float* sig, size_t size, bool trigger)
 
         fonepole(tone_lp_, pulse * exciter_leak + resonator_out, tone_f);
 
-        *(sig + i) = 5 * tone_lp_;
+        *(sig + i) = 10 * tone_lp_;
     }
 }
 

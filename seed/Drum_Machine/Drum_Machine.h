@@ -12,7 +12,7 @@ AdWNoise tissNoise;
 AdsrOsc bloopOsc;
 
 cr808bass bassEnv;
-AnalogSnareDrum snareEnv;
+cr808snare snareEnv;
 
 Limiter limit;
 
