@@ -76,7 +76,7 @@ class AdEnv
         Input range: -FLTmax_, to FLTmax_
     */
     inline void SetMax(float max) { max_ = max; }
-    /** Returns the current output value without processing the next sample */
+    /** Returns the the sum of each individual segment_time_ */
     float GetEnvTime();
     /** Returns the current output value without processing the next sample */
     inline float GetValue() const { return (output_ * (max_ - min_)) + min_; }

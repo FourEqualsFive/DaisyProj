@@ -26,26 +26,27 @@ void AdsrOsc::Init(float sample_rate, int base_f = 600){
     amp_env_.SetSustainLevel(0.7);
 }// end Init()
 
-float AdsrOsc::CallBack(float freq_set, bool freq_gate, bool amp_gate){
+void AdsrOsc::CallBack(float *sig, size_t size, float freq_set, bool freq_gate, bool amp_gate){
     float amp_release, freq_release;
-    if ((!freq_gate || !amp_gate) & gate_){ //falling edge
-        amp_release = amp_env_.GetReleaseTime();
-        freq_release = freq_env_.GetReleaseTime();
-        (amp_release > freq_release) ? (count_ = amp_release) : (count_ = freq_release);
+    for (size_t i = 0; i < size; i += 2){
+        if ((!freq_gate || !amp_gate) & gate_){ //falling edge
+            amp_release = amp_env_.GetReleaseTime();
+            freq_release = freq_env_.GetReleaseTime();
+            (amp_release > freq_release) ? (count_ = amp_release) : (count_ = freq_release);
+        }
+        else
+        {
+            count_ = 1;
+        }
+    
+        if (count_--){
+            SetAmp(amp_env_.Process(amp_gate));
+            SetFreq(freq_set * freq_env_.Process(freq_gate));
+            *(sig + i) = Process();
+        }
+        else {
+            *(sig + i) = 0;
+        }
     }
-    else
-    {
-        count_ = 1;
-    }
-
-    if (count_){
-        SetAmp(amp_env_.Process(amp_gate));
-        SetFreq(freq_set * freq_env_.Process(freq_gate));
-
-        count_--;
-
-        return Process();
-    }
-    else { return 0; }
 
 } // end CallBack()

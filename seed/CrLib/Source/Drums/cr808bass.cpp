@@ -61,6 +61,8 @@ void cr808bass::Process(float* sig, size_t size, bool trigger)
         = fmin(4.0f * f0_ * powf(2.f, kOneTwelfth * tone_ * 108.0f), 1.0f);
     const float exciter_leak = 0.08f * (tone_ + 0.25f);
 
+    size_t deadCount = size;
+
 
     if(trigger || trig_)
     {
@@ -148,6 +150,8 @@ void cr808bass::Process(float* sig, size_t size, bool trigger)
         fonepole(tone_lp_, pulse * exciter_leak + resonator_out, tone_f);
 
         *(sig + i) = 10 * tone_lp_;
+        (*(sig + i) > -.1) && (*(sig + i) > -.1) ? deadCount-- : deadCount = 0;
+        trig_ = deadCount < size ? false : trig_;
     }
 }
 

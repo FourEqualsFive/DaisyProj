@@ -4,78 +4,39 @@ void AudioCallback(AudioHandle::InterleavingInputBuffer  in,
                    AudioHandle::InterleavingOutputBuffer out,
                    size_t                                size)
 {
-    unsigned int deadSnare = 0;
-    float freq_set, freqMod;
     float bassOsc_out[size], snareOsc_out[size];
-    float clickOsc_out, bloopOsc_out;
-    float noise_out, sig[size];
+    float clickOsc_out[size], bloopOsc_out[size];
+    float noise_out[size], sig[size];
 
-    //Get rid of any bouncing
-    click.Debounce();
-    tiss.Debounce();
-    bass.Debounce();
-    snare.Debounce();
-    bloop.Debounce();
+    //meter.OnBlockStart(); //for debug
 
-    //Trigger envelopes on button press
-    if (click.RisingEdge()) { ClickTrig(); }
-    if (tiss.RisingEdge()) { TissTrig(); }
-    if (bloop.RisingEdge() || bloop.FallingEdge()) { BloopTrig(); }
-    if (bass.RisingEdge()) { bssGate = true ; bassEnv.Trig(); }
-    if (snare.RisingEdge()) { snrGate = true ; snareEnv.Trig(); }
-    
-    //Read the next ADC samples
-    freqMod = (1 + hardware.adc.GetFloat(0));
-    freq_set = base_f * freqMod;
-
-    //Fill bassOsc_out with a block of samples
+    //Fill each individual voice buffer with a block of samples
     bassEnv.Process(bassOsc_out, size);
     snareEnv.Process(snareOsc_out, size);
+    clickOsc.CallBack(clickOsc_out, size, freq_set);
+    bloopOsc.CallBack(bloopOsc_out, size, freq_set, bloopFreqGate, bloopVolGate);
+    tissNoise.CallBack(noise_out, size);
 
-    //Prepare the rest of the audio block
+    //Sum individual voice samples in one buffer
     for(size_t i = 0; i < size; i += 2)
     {
-        /*******************************************************************************
-         * \todo Further optimize block processing
-         * \todo Add gates and deadcounts back?
-         * \todo Look into wavetable synthesis for 808 drums
-        *******************************************************************************/
-/*
-        //Process the next samples
-        //Use individual gate and deadcounts to skip processing when no output
-        if (snrGate) {
-            snareOsc_out = snareEnv.Process();
-            (snareOsc_out > -0.1) && (snareOsc_out < 0.1) ? deadSnare++ : deadSnare = 0;
-            (deadSnare > size) ? snrGate = false : snrGate = true;
-        }
-        else { snareOsc_out = 0; }
-
-        if (bssGate) {
-            bassOsc_out = 5 * bassEnv.Process();
-            (bassOsc_out > -0.1) && (bassOsc_out < 0.1) ? deadBass++ : deadBass = 0;
-            (deadBass > size) ? bssGate = false : bssGate = true;
-        }
-        else { bassOsc_out = 0; }
-*/
-        bloopOsc_out = bloopOsc.CallBack(freq_set, bloopFreqGate, bloopVolGate);
-        clickOsc_out = .5 * clickOsc.CallBack(freq_set);
-        noise_out = tissNoise.Callback();
-        
-        //Sum all voices, save the result for block processing
-        sig[i] = noise_out + clickOsc_out + bloopOsc_out;
+        sig[i] = noise_out[i];
+        sig[i] += bloopOsc_out[i];
+        sig[i] += clickOsc_out[i];
         sig[i] += bassOsc_out[i];
         sig[i] += snareOsc_out[i];
+    }
 
-    } // end audio processing
-
-    //Soft limit the oscillator samples to prevent clipping
+    //Soft limit the summed samples to prevent clipping
     limit.ProcessBlock(sig,size,1);
 
-    //Send sample block to output
+    //Send a block of samples to the output
     for(size_t i = 0; i < size; i += 2) {
         out[i]     = sig[i];
         out[i + 1] = sig[i];
     }
+
+    //meter.OnBlockEnd(); //for debug
 
 } // end AudioCallback()
 
@@ -93,8 +54,14 @@ int main(void)
     hardware.adc.Init(&adcConfig, 1);
     hardware.adc.Start();
 
+    //Initialize CPU Load Meter (for debug)
+    //meter.Init(samplerate, blocksize);
+
     //Initialize limiter
     limit.Init();
+
+    //Initialize metronome (for debug)
+    tick.Init(1, samplerate);
 
     //Initialize drums
     clickOsc.Init(samplerate,base_f);
@@ -115,5 +82,35 @@ int main(void)
     hardware.StartAudio(AudioCallback);
 
     // Loop forever
-    for(;;) {}
+    for(;;) {
+        //Measure average and max CPU load (for debug)
+        //float maxCpu = 100 * meter.GetMaxCpuLoad();
+        //float avgCpu = 100 * meter.GetAvgCpuLoad();
+
+        //Get rid of any bouncing
+        click.Debounce();
+        tiss.Debounce();
+        bass.Debounce();
+        snare.Debounce();
+        bloop.Debounce();
+    
+        //Trigger envelopes on button press
+        if (click.RisingEdge()) { ClickTrig(); }
+        if (tiss.RisingEdge()) { TissTrig(); }
+        if (bloop.RisingEdge() || bloop.FallingEdge()) { BloopTrig(); }
+        if (bass.RisingEdge()) { bssGate = true ; bassEnv.Trig(); }
+        if (snare.RisingEdge()) { snrGate = true ; snareEnv.Trig(); }
+    /*
+        //Trigger envelopes on metronome (for debug)
+        if (tick.Process()) { meter.Reset(); ClickTrig(); }
+        if (tick.Process()) { meter.Reset(); TissTrig(); }
+        if (tick.Process() || bloop.FallingEdge()) { meter.Reset(); BloopTrig(); }
+        if (tick.Process()) { meter.Reset(); bssGate = true ; bassEnv.Trig(); }
+        if (tick.Process()) { meter.Reset(); snrGate = true ; snareEnv.Trig(); }
+    */
+        //Read the next ADC samples
+        freqMod = (1 + hardware.adc.GetFloat(0));
+        freq_set = base_f * freqMod;
+    }
+    
 } // end main

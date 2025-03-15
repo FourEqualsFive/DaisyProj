@@ -47,19 +47,18 @@ class AdBass : public Oscillator{
             - 
         *********************************************************************/
 
-        float CallBack(float freq_set);
+        void CallBack(float *sig, size_t size, float freq_set);
         /*********************************************************************
             Parameters:
-            \param sample_rate  sample rate of the audio engine being run
-            \param freq_set     base frequency modified by pot input
+            \param sig              pointer audio sample block buffer
+            \param size             number of samples for one audio block
+            \param freq_set         base frequency modified by pot input
 
             Description:    Handles processing for individual envelopes
         *********************************************************************/
 
         void TriggerEnv();
         /*********************************************************************
-            Parameters:
-
             Description:    Calls Trigger() for the two AdEnvs
         *********************************************************************/
 

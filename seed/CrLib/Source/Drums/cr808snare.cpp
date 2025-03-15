@@ -93,6 +93,8 @@ void cr808snare::Process(float *sig, size_t size, bool trigger)
 
     float tone = tone_;
 
+    size_t deadCount = size;
+
     if(trigger || trig_)
     {
         trig_                    = false;
@@ -196,6 +198,8 @@ void cr808snare::Process(float *sig, size_t size, bool trigger)
 
         // IC13
         *(sig + i) = noise + shell * (1.0f - snappy);
+        (*(sig + i) > -.1) && (*(sig + i) > -.1) ? deadCount-- : deadCount = 0;
+            
     }
 }
 

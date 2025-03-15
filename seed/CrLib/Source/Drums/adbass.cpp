@@ -33,19 +33,23 @@ void AdBass::TriggerEnv(){
     freq_env_.Trigger();
 } // end TiggerEnv()
 
-float AdBass::CallBack(float freq_set){
+void AdBass::CallBack(float *sig, size_t size, float freq_set){
 
-    if (gate_){
+    if (gate_--){
         freq_env_.SetMax(freq_set);
         freq_env_.SetMin((freq_set) - 550);
-
-        SetAmp(amp_env_.Process());
-        SetFreq(freq_env_.Process());
-
-        gate_--;
-
-        return Process();
+        for (size_t i = 0; i < size; i += 2)
+        {
+            SetAmp(amp_env_.Process());
+            SetFreq(freq_env_.Process());
+            *(sig + i) = Process();
+        }
     }
-    else { return 0; }
+    else { 
+        for (size_t i = 0; i < size; i += 2)
+        {
+            *(sig + i) = 0; 
+        }
+    }
 
 } // end CallBack()

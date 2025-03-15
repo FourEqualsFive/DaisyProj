@@ -4,6 +4,7 @@
 #define CR_ADWNOISE_H
 #include <stdint.h>
 #include "../Noise/whitenoise.h"
+#include "../Utility/dsp.h"
 #include "../Control/adenv.h"
 
 #ifdef __cplusplus
@@ -23,7 +24,7 @@ class AdWNoise : public WhiteNoise{
             Description: Initialize the Whitenoise and AdEnv
         *********************************************************************/
 
-        float Callback();
+        void CallBack(float *sig, size_t size);
         /*********************************************************************
             Description: Handles processing for individual envelopes
         *********************************************************************/

@@ -57,7 +57,8 @@
       "command": "make clean;DEBUG=1 make",
       "dependsOn": [
         "build_libdaisy",
-        "build_daisysp"
+        "build_daisysp",
+        "build_crlib"
       ],
       "label": "build_all_debug",
       "options": {

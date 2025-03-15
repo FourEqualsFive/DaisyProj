@@ -11,12 +11,16 @@ AdBass clickOsc;
 AdWNoise tissNoise;
 AdsrOsc bloopOsc;
 
+Metro tick;
+
 cr808bass bassEnv;
 cr808snare snareEnv;
 
 Limiter limit;
 
 AdcChannelConfig adcConfig;
+
+CpuLoadMeter meter;
 
 Switch bass, snare;
 Switch click, tiss, bloop;
@@ -26,6 +30,7 @@ bool bssGate = false;
 bool snrGate = false;
 bool led_state = true;
 const int base_f = 600;
+float freq_set, freqMod;
 
 void ClickTrig(){
     clickOsc.TriggerEnv();

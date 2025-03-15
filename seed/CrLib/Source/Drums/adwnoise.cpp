@@ -17,10 +17,18 @@ void AdWNoise::TriggerEnv(){
     env_.Trigger();
 }
 
-float AdWNoise::Callback(){
-    if (gate_){ 
-        gate_--;
-        return ( WhiteNoise::Process() * env_.Process() );
+void AdWNoise::CallBack(float *sig, size_t size){
+    for (size_t i = 0; i < size; i += 2){
+        //*(sig + i) = (gate_--) ? ( WhiteNoise::Process() * env_.Process() ) : 0 ;
+        
+        if (gate_--)
+        { 
+            *(sig + i) = ( WhiteNoise::Process() * env_.Process() );
+        }
+        else
+        {
+            *(sig + i) = 0;
+        }
+        
     }
-    else {return 0;}
 }

@@ -46,13 +46,16 @@ class AdsrOsc : public Oscillator{
             - 
         *********************************************************************/
 
-        float CallBack(float freq_set, bool freq_gate, bool amp_gate);
+        void CallBack(float *sig, size_t size, float freq_set, bool freq_gate, bool amp_gate);
         /*********************************************************************
             Parameters:
-            \param sample_rate  sample rate of the audio engine being run
+            \param sig          pointer to audio sample block buffer
+            \param size         number of samples for one audio block
             \param freq_set     base frequency modified by pot input
+            \param freq_gate    true allows the pitch ADSR to process samples
+            \param amp_gate     true allows the volume ADSR to process samples
 
-            Description:    Handles processing for individual envelopes
+            Description:    Handles processing for two separate ADSR envelopes
         *********************************************************************/
 
     private:
