@@ -15,10 +15,15 @@
 #include "Drums/adsrosc.h"
 #include "Drums/analogbassdrum.h"
 #include "Drums/analogsnaredrum.h"
+#include "Drums/adclap.h"
+#include "Drums/crbell.h"
+#include "Drums/hihat.h"
 #include "Drums/cr808bass.h"
 #include "Drums/cr808snare.h"
 
 /** Filter Modules */
+#include "Filters/onepole.h"
+#include "Filters/soap.h"
 #include "Filters/svf.h"
 
 /** Noise Modules */

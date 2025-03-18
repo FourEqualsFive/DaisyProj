@@ -7,6 +7,7 @@ Source/Utility/metro.cpp
 Source/Control/adenv.cpp
 Source/Control/adsr.cpp
 Source/Dynamics/limiter.cpp
+Source/Filters/soap.cpp
 Source/Filters/svf.cpp
 Source/Synthesis/oscillator.cpp
 Source/Drums/adbass.cpp
@@ -14,6 +15,9 @@ Source/Drums/adsrosc.cpp
 Source/Drums/adwnoise.cpp
 Source/Drums/analogbassdrum.cpp
 Source/Drums/analogsnaredrum.cpp
+Source/Drums/hihat.cpp
+Source/Drums/adclap.cpp
+Source/Drums/crbell.cpp
 Source/Drums/cr808bass.cpp
 Source/Drums/cr808snare.cpp
 )

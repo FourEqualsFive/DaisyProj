@@ -22,6 +22,7 @@ limiter \
 FILTERS_MOD_DIR = Filters
 FILTERS_MODULES = \
 svf \
+soap \
 
 NOISE_MOD_DIR = Noise
 
@@ -36,6 +37,9 @@ adwnoise \
 adsrosc \
 analogbassdrum \
 analogsnaredrum \
+hihat \
+crbell \
+adclap \
 cr808bass \
 cr808snare \
 

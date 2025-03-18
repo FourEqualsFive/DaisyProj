@@ -7,13 +7,17 @@ using namespace daisy;
 // Declare a DaisySeed object called hardware
 DaisySeed hardware;
 
-AdBass clickOsc;
+AdBass triOsc;
+AdBass sqOsc, popOsc;
 AdWNoise tissNoise;
+AdClap clapNoise;
 AdsrOsc bloopOsc;
 
 Metro tick;
 
-cr808bass bassEnv;
+HiHat<> hiHatEnv;
+crBell bellEnv;
+cr808bass kickEnv;
 cr808snare snareEnv;
 
 Limiter limit;
@@ -22,19 +26,31 @@ AdcChannelConfig adcConfig;
 
 CpuLoadMeter meter;
 
-Switch bass, snare;
-Switch click, tiss, bloop;
+Switch kick, snare, hihat;
+Switch tri, tiss, bloop;
+Switch square, pop, bell, clap;
 
 bool bloopVolGate, bloopFreqGate;
-bool bssGate = false;
+bool kckGate = false;
 bool snrGate = false;
+bool hatGate = false;
+bool belGate = false;
 bool led_state = true;
 const int base_f = 600;
-float freq_set, freqMod;
+float tri_freq;
+int deadHat = 0;
 
-void ClickTrig(){
-    clickOsc.TriggerEnv();
-    clickOsc.TriggerEnv();
+void TriTrig(){
+    triOsc.TriggerEnv();
+}
+void PopTrig(){
+    popOsc.TriggerEnv();
+}
+void SqTrig(){
+    sqOsc.TriggerEnv();
+}
+void ClapTrig(){
+    clapNoise.TriggerEnv();
 }
 void TissTrig(){
     tissNoise.TriggerEnv();

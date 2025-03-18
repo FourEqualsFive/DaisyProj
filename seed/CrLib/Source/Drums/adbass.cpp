@@ -16,7 +16,7 @@ void AdBass::Init(float sample_rate, int base_f = 600){
     freq_env_.SetTime(ADENV_SEG_ATTACK, .01);
     freq_env_.SetTime(ADENV_SEG_DECAY, .05);
     freq_env_.SetMax(base_f_);
-    freq_env_.SetMin(50);
+    freq_env_.SetMin(.1f * base_f);
 
     amp_env_.SetTime(ADENV_SEG_ATTACK, .01);
     amp_env_.SetTime(ADENV_SEG_DECAY, 1);

@@ -1,5 +1,4 @@
-#include "..\Utility\dsp.h"
-#include "cr808snare.h"
+#include "crbell.h"
 #include <math.h>
 #include <stdlib.h>
 
@@ -7,7 +6,7 @@ using namespace crlib;
 
 static const int kNumModes = 5;
 
-void cr808snare::Init(float sample_rate)
+void crBell::Init(float sample_rate)
 {
     sample_rate_ = sample_rate;
 
@@ -21,11 +20,11 @@ void cr808snare::Init(float sample_rate)
     sustain_gain_            = 0.0f;
 
     SetSustain(false);
-    SetAccent(.6f);
-    SetFreq(200.f);
-    SetDecay(.3f);
-    SetSnappy(.7f);
-    SetTone(.05f);
+    SetAccent(0.0f);
+    SetFreq(800.f);
+    SetDecay(.7f);
+    SetSnappy(0.0f);
+    SetTone(.5f);
 
     for(int i = 0; i < kNumModes; ++i)
     {
@@ -36,46 +35,46 @@ void cr808snare::Init(float sample_rate)
 }
 
 /** Trigger the drum */
-void cr808snare::Trig()
+void crBell::Trig()
 {
     trig_ = true;
 }
 
-void cr808snare::SetSustain(bool sustain)
+void crBell::SetSustain(bool sustain)
 {
     sustain_ = sustain;
 }
 
-void cr808snare::SetAccent(float accent)
+void crBell::SetAccent(float accent)
 {
     accent_ = fclamp(accent, 0.f, 1.f);
 }
 
-void cr808snare::SetFreq(float f0)
+void crBell::SetFreq(float f0)
 {
     f0  = f0 / sample_rate_;
     f0_ = fclamp(f0, 0.f, .4f);
 }
 
-void cr808snare::SetTone(float tone)
+void crBell::SetTone(float tone)
 {
     tone_ = fclamp(tone, 0.f, 1.f);
     tone_ *= 2.f;
 }
 
-void cr808snare::SetDecay(float decay)
+void crBell::SetDecay(float decay)
 {
     decay_ = decay;
     return;
     decay_ = fmax(decay, 0.f);
 }
 
-void cr808snare::SetSnappy(float snappy)
+void crBell::SetSnappy(float snappy)
 {
     snappy_ = fclamp(snappy, 0.f, 1.f);
 }
 
-void cr808snare::Process(float *sig, size_t size, bool trigger)
+void crBell::Process(float *sig, size_t size, bool trigger)
 {
     const float decay_xt = decay_ * (1.0f + decay_ * (decay_ - 1.0f));
     const int   kTriggerPulseDuration = 1.0e-3 * sample_rate_;
@@ -197,18 +196,18 @@ void cr808snare::Process(float *sig, size_t size, bool trigger)
         noise = noise_filter_.Band();
 
         // IC13
-        *(sig + i) = noise + shell * (1.0f - snappy);
+        *(sig + i) = shell * (1.0f - snappy);
         (*(sig + i) > -.1) && (*(sig + i) > -.1) ? deadCount-- : deadCount = 0;
             
     }
 }
 
-inline float cr808snare::SoftLimit(float x)
+inline float crBell::SoftLimit(float x)
 {
     return x * (27.0f + x * x) / (27.0f + 9.0f * x * x);
 }
 
-inline float cr808snare::SoftClip(float x)
+inline float crBell::SoftClip(float x)
 {
     if(x < -3.0f)
     {
